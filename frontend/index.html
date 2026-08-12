@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>动漫聊天室</title>
+
+  <!-- Favicon：与主题色一致的粉色聊天气泡 -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff7eb3'><path d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/></svg>">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ===== 左侧导航栏 ===== -->
+    <nav id="nav-rail">
+      <div class="logo">🎸</div>
+
+      <button class="nav-btn active" data-view="chat" title="消息">💬</button>
+      <button class="nav-btn" data-view="moments" title="朋友圈">📷</button>
+      <button class="nav-btn" data-view="mini" title="小程序">🧩</button>
+
+      <div class="spacer"></div>
+
+      <button id="btn-settings" class="nav-btn" title="设置">⚙️</button>
+    </nav>
+
+    <!-- ===== 会话列表 ===== -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <h2>消息</h2>
+        <input id="search-input" type="text" placeholder="搜索好友">
+      </div>
+
+      <div id="friend-list"></div>
+    </aside>
+
+    <!-- ===== 聊天面板 ===== -->
+    <main id="chat-panel">
+      <div id="chat-placeholder">
+        🎵选择一位好友开始聊天吧
+      </div>
+
+      <div id="chat-view" class="hidden">
+        <div id="chat-header">
+          <img id="chat-avatar" src="" alt="">
+
+          <div>
+            <div id="chat-name"></div>
+            <div id="chat-band"></div>
+          </div>
+
+          <button id="btn-poke">👉 戳一戳</button>
+        </div>
+
+        <div id="messages"></div>
+
+        <div id="typing-indicator" class="hidden">
+          对方正在输入
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+
+        <!-- 聊天图片预览区 -->
+        <div id="chat-image-preview" class="chat-image-preview hidden">
+          <img id="chat-image-preview-img" alt="待发送图片">
+          <button id="btn-remove-chat-image" title="移除图片">✕</button>
+        </div>
+
+        <!-- 聊天输入区 -->
+        <div id="chat-input-area">
+          <button id="btn-choose-chat-image" title="发送图片">🖼️</button>
+          <textarea id="chat-input" placeholder="输入消息，也可以发送图片…"></textarea>
+          <button id="btn-send">发送</button>
+          <input
+            type="file"
+            id="chat-image-input"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            hidden
+          >
+        </div>
+      </div>
+    </main>
+
+    <!-- ===== 朋友圈面板 ===== -->
+    <section id="moments-panel" class="hidden">
+      <div id="moments-cover">
+        <h1>🎵 朋友圈</h1>
+        <p>好友们的旅行与日常</p>
+        <button id="btn-gen-moment">✨ 生成新动态</button>
+      </div>
+
+      <div id="moments-feed"></div>
+    </section>
+
+    <!-- ===== 小程序面板 ===== -->
+    <section id="mini-panel" class="hidden">
+      <div id="mini-cover">
+        <h1>🧩 小程序</h1>
+        <p>少女乐队主题的趣味小应用</p>
+      </div>
+
+      <div class="mini-app">
+        <div class="band-header">🎸 组建你的少女乐队</div>
+
+        <div class="band-sub">
+          现在你有15块（乐队人数2-5人，无需使用所有资金，剩余资金用于乐队运营，推荐队伍具有作曲作词主唱能力）
+        </div>
+
+        <div class="budget">
+          当前总价：<span id="band-total">0</span> 元 / 15 元
+        </div>
+
+        <!-- band.js 会在这里渲染 5元 到 1元 的角色列表 -->
+        <div id="band-selection-area"></div>
+
+        <div class="button-group">
+          <button id="band-build-btn">组建乐队</button>
+          <button id="band-clear-btn">清除全部</button>
+        </div>
+
+        <div id="band-result"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ===== 设置弹窗 ===== -->
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>设置</h3>
+        <button id="btn-close-settings" type="button">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <label>我的昵称（角色会这样称呼你）</label>
+        <div class="row">
+          <input id="input-nickname" type="text" placeholder="输入昵称">
+          <button id="btn-save-nickname">保存</button>
+        </div>
+
+        <div class="row">
+          <button id="btn-test-greeting">测试早安推送</button>
+        </div>
+
+        <label>我的头像（显示在聊天右侧）</label>
+        <div class="row">
+          <div id="my-avatar-preview" class="me-avatar-lg">我</div>
+          <button id="btn-choose-avatar">选择图片</button>
+          <input id="input-avatar" type="file" accept="image/*" class="hidden">
+          <button id="btn-reset-avatar">恢复默认</button>
+        </div>
+
+        <div id="status-box">加载中…</div>
+
+        <div class="tips">
+          💡 提示：<br>
+          · 修改 AI 配置请编辑项目根目录的 .env 文件后重启程序<br>
+          · 小程序“组乐队”的深度分析与聊天共用同一套 LLM 配置<br>
+          · 扩充角色认知（防OOC）：在 backend/knowledge/ 中为角色追加资料行
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 生成朋友圈弹窗 ===== -->
+  <div id="gen-moment-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>✨ 生成新动态</h3>
+        <button id="btn-close-gen-moment" type="button" aria-label="关闭">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="gen-status-box" class="hidden"></div>
+
+        <div class="gen-field">
+          <label for="gen-character">发布角色</label>
+          <select id="gen-character" class="gen-input"></select>
+        </div>
+
+        <div class="gen-field">
+          <label for="gen-source">生图方式</label>
+          <select id="gen-source" class="gen-input">
+            <option value="pool" selected>本地图片池（选择 / 上传图片）</option>
+            <option value="cloud">云端 AI 生图</option>
+            <option value="local">本地 ComfyUI / SD 生图</option>
+          </select>
+        </div>
+
+        <!-- pool 模式：选择图片 -->
+        <div class="gen-field" id="gen-pool-field">
+          <label>配图（从图片池选择一张）</label>
+          <div class="pool-picker-row">
+            <img id="gen-pool-preview" class="gen-pool-preview hidden" alt="已选图片">
+            <button id="btn-choose-pool-image" type="button" class="gen-btn">🖼️ 选择图片</button>
+            <button id="btn-clear-pool-image" type="button" class="gen-btn hidden">✕ 清除</button>
+          </div>
+        </div>
+
+        <!-- pool 模式：文案方式 -->
+        <div class="gen-field" id="gen-caption-mode-field">
+          <label for="gen-caption-mode">文案方式</label>
+          <select id="gen-caption-mode" class="gen-input">
+            <option value="vision" selected>AI 看图写文案（推荐）</option>
+            <option value="manual">自己编写文案</option>
+          </select>
+        </div>
+
+        <!-- pool + vision：图中人物 -->
+        <div class="gen-field" id="gen-people-field">
+          <label for="gen-people">图中人物（告诉 AI，让文案更准确）</label>
+          <input id="gen-people" class="gen-input" type="text" placeholder="例如：平泽唯和秋山澪（可选）">
+        </div>
+
+        <!-- pool + manual：手写文案 -->
+        <div class="gen-field hidden" id="gen-manual-caption-field">
+          <label for="gen-manual-caption">手写文案</label>
+          <textarea id="gen-manual-caption" class="gen-textarea" rows="2" placeholder="输入这条朋友圈的文案…"></textarea>
+        </div>
+
+        <!-- cloud / local 模式：生图提示词 -->
+        <div class="gen-field hidden" id="gen-prompt-field">
+          <label for="gen-prompt">生图提示词</label>
+          <textarea
+            id="gen-prompt"
+            class="gen-textarea"
+            rows="4"
+            placeholder="cloud / local 模式下建议填写。例如：anime girl, seaside livehouse, sunset"
+          ></textarea>
+        </div>
+
+        <!-- cloud / local 模式：人物参考图 -->
+        <div class="gen-field hidden" id="gen-ref-field">
+          <label>人物参考图（最多3张，按提示词中人物顺序选择，可选）</label>
+          <div class="pool-picker-row">
+            <div id="gen-ref-preview" class="ref-preview-row"></div>
+            <button id="btn-choose-ref-image" type="button" class="gen-btn">👤 选择人物参考图</button>
+            <button id="btn-clear-ref-image" type="button" class="gen-btn hidden">✕ 清除</button>
+          </div>
+        </div>
+
+        <div class="gen-actions">
+          <button id="btn-cancel-gen-moment" type="button">取消</button>
+          <button id="btn-confirm-gen-moment" type="button">生成动态</button>
+        </div>
+
+        <div class="tips">
+          · pool：从 frontend/assets/moments_pool 图片池中选择一张图片（也可上传新图）。<br>
+          · cloud：使用 .env 中配置的 IMAGE_MODEL 生成图片（qwen-image 系列支持参考图）。<br>
+          · local：使用本地 ComfyUI 工作流生成图片（支持参考图），未配置时回退 SD WebUI。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 图片池选择弹窗 ===== -->
+  <div id="pool-picker-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-content pool-modal-content">
+      <div class="modal-header">
+        <h3>🖼️ 选择图片（图片池）</h3>
+        <button id="btn-close-pool-picker" type="button" aria-label="关闭">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="pool-toolbar">
+          <button id="btn-upload-pool-image" type="button" class="gen-btn">📤 上传新图片到图片池</button>
+          <input id="input-pool-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+        </div>
+
+        <div id="pool-grid" class="pool-grid"></div>
+
+        <div class="tips">· 图片池目录为 frontend/assets/moments_pool，上传的图片也会保存到这里。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 人物参考图选择弹窗（多选） ===== -->
+  <div id="ref-picker-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-content pool-modal-content">
+      <div class="modal-header">
+        <h3>👤 选择人物参考图（最多3张）</h3>
+        <button id="btn-close-ref-picker" type="button" aria-label="关闭">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="ref-grid" class="pool-grid"></div>
+        <div class="tips">
+          · 参考图目录为 frontend/assets/band/picture。<br>
+          · 点击选择 / 取消，角标数字即参考图顺序。<br>
+          · 建议提示词中人物出现顺序与参考图选择顺序一致。
+        </div>
+        <div class="gen-actions">
+          <button id="btn-confirm-ref-picker" type="button" class="gen-btn">✅ 确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Toast ===== -->
+  <div id="toast" class="hidden"></div>
+
+  <!-- ===== JS (注意加载顺序：先规则库，再业务逻辑，最后主应用) ===== -->
+  <script src="js/mbti_analysis.js"></script>
+  <script src="js/band.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
