@@ -472,7 +472,7 @@ img.me-avatar {
   white-space: pre-wrap;
 }
 
-/* 修改：长图不再裁切，完整显示 */
+/* 长图不再裁切，完整显示 */
 .moment-img {
   width: 100%;
   height: auto;
@@ -1202,24 +1202,38 @@ img.me-avatar {
   padding: 24px 0;
 }
 
-/* ===== 人物参考图选择 ===== */
+/* ===== 人物参考图选择（竖长图：从上到下完整展示，避免裁掉头部） ===== */
+/* 参考图选择弹窗内的格子改为竖版 3:4，并完整展示整张图 */
+#ref-grid .pool-item {
+  aspect-ratio: 3 / 4;
+}
+
+#ref-grid .pool-item img {
+  object-fit: contain;
+  object-position: top center;
+  background: #f4f2f7;
+}
+
 .ref-preview-row {
   display: flex;
   gap: 8px;
 }
 
+/* 已选参考图预览：竖版小卡，完整展示 */
 .ref-thumb {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 80px;
 }
 
 .ref-thumb img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: top center;
   border-radius: 10px;
   border: 1px solid #eee;
+  background: #f4f2f7;
 }
 
 .ref-order {
@@ -1237,6 +1251,64 @@ img.me-avatar {
   justify-content: center;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
+
+/* ===== 模型测速面板 ===== */
+#benchmark-panel {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-main);
+}
+#benchmark-cover {
+  background: linear-gradient(135deg, #8a6fe8, #ff7eb3);
+  color: #fff;
+  padding: 42px 20px 30px;
+  text-align: center;
+}
+#benchmark-cover h1 { font-size: 26px; }
+#benchmark-cover p { opacity: 0.85; margin-top: 6px; font-size: 13px; }
+#benchmark-container {
+  max-width: 1100px;
+  margin: 18px auto 40px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 2px 8px rgba(80, 60, 120, 0.08);
+}
+.benchmark-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+.benchmark-controls label { font-size: 13px; color: var(--text-sub); }
+.benchmark-controls select { width: 340px; }
+.benchmark-table-wrap { overflow-x: auto; }
+#benchmark-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 960px;
+  table-layout: fixed;
+}
+#benchmark-table th,
+#benchmark-table td {
+  border: 1px solid #e5e2ec;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  word-break: break-word;
+  text-align: center;
+  color: var(--text-main);
+  font-weight: 400;
+}
+#benchmark-table thead th { background: #faf8fc; font-weight: 600; }
+/* 斜线表头 */
+.slant-header-cell {
+  position: relative;
+  height: 80px;
+  width: 160px;
+  background: linear-gradient(to top right, transparent 49.4%, #cfc9dd 49.4%, #cfc9dd 50.6%, transparent 50.6%) #faf8fc;
+}
+.slant-header-cell .slant-top { position: absolute; top: 10px; right: 12px; font-size: 13px; font-weight: 600; color: var(--text-main); }
+.slant-header-cell .slant-bottom { position: absolute; bottom: 10px; left: 12px; font-size: 13px; font-weight: 600; color: var(--text-main); }
+.benchmark-model-header { width: 210px; }
+.benchmark-dynamic-header { background: #fff0f6; color: var(--primary-dark); }
+.benchmark-question-cell { text-align: left; background: #fdfcff; }
+.benchmark-dynamic-cell { background: #fff9fb; color: var(--primary-dark); font-weight: 600; }
 
 @media (max-width: 560px) {
   #gen-moment-modal .modal-content {
