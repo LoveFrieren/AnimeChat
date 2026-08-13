@@ -1,7 +1,7 @@
 {
   "41": {
     "inputs": {
-      "image": "徐欣.jpg"
+      "image": "千早爱音.jpg"
     },
     "class_type": "LoadImage",
     "_meta": {
@@ -26,7 +26,7 @@
   },
   "196": {
     "inputs": {
-      "image": "曾靖元.jpg"
+      "image": "高松灯.jpg"
     },
     "class_type": "LoadImage",
     "_meta": {
@@ -108,7 +108,7 @@
   },
   "170:151": {
     "inputs": {
-      "prompt": "图2男子牵着图1女子的手，图1女子一脸娇羞",
+      "prompt": "图2女生牵着图1女生的手，图1女生一脸娇羞",
       "clip": [
         "170:162",
         0
